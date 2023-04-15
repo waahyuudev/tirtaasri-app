@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "59261223073",
+    "project_id": "tirtasri-project",
+    "storage_bucket": "tirtasri-project.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:59261223073:android:3140a8dd9f831e6dfff0e0",
+        "android_client_info": {
+          "package_name": "com.wahyu.tirtaasri_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "59261223073-ri6ejkmcoph9t5h9o4kkprf36liuemv7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA-h_E_5qCahfFSZQ58S0QPWg484H6rGmw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "59261223073-ri6ejkmcoph9t5h9o4kkprf36liuemv7.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "59261223073-bvd4ghre1baphs9kbcrpbffml4r1sksq.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.wahyu.tirtaasriApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

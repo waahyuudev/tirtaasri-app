@@ -39,6 +39,9 @@ dependencies:
   lottie: ^2.2.0
   google_fonts: ^4.0.3
   styled_text: ^7.0.0
+  firebase_core: ^2.9.0
+  firebase_database: ^10.1.0
+  shared_preferences: ^2.1.0
 
 dev_dependencies:
   flutter_test:

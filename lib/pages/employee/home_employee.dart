@@ -1,8 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tirtaasri_app/components/custom_appbar.dart';
 import 'package:tirtaasri_app/components/custom_avatar.dart';
 import 'package:tirtaasri_app/components/custom_menu_logout.dart';
+import 'package:tirtaasri_app/utils/preferences_util.dart';
+import 'package:tirtaasri_app/utils/strings.dart';
 
 import '../../components/custom_menu.dart';
 import '../../components/custom_title_menu.dart';
@@ -12,10 +16,18 @@ import '../../utils/navigation.dart';
 import '../agent/history_transaction.dart';
 
 class HomeEmployee extends StatelessWidget {
-  const HomeEmployee({super.key});
+  const HomeEmployee({super.key, this.user});
+  final dynamic user;
 
   @override
   Widget build(BuildContext context) {
+    // final userSaved =
+    //     PreferencesUtil.getString(Strings.kUserLogin, defValue: null);
+    // dynamic user;
+    // if (user != null) {
+    //   user = jsonDecode(userSaved);
+    // }
+
     return Scaffold(
       appBar: CustomAppBar(
         titleWidget: Image.asset(
@@ -33,28 +45,34 @@ class HomeEmployee extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            CustomAvatar(name: "Alik Handoyo"),
-            const CustomTitleMenu(title: "Profile",),
+            CustomAvatar(name: user?["name"] ?? ""),
+            const CustomTitleMenu(
+              title: "Profile",
+            ),
             CustomMenu(
                 leading:
-                SvgPicture.asset('assets/svg/iconoir_profile-circle.svg'),
-                text: "Alik Handoyo",
+                    SvgPicture.asset('assets/svg/iconoir_profile-circle.svg'),
+                text: user?["name"] ?? "",
                 trailing: SvgPicture.asset(
                     'assets/svg/material-symbols_edit-square-outline-sharp.svg')),
             CustomMenu(
                 leading: SvgPicture.asset('assets/svg/ic_home_menu.svg'),
-                text: "Jl Pendidikan",
+                text: user?["address"] ?? "",
                 trailing: SvgPicture.asset(
                     'assets/svg/material-symbols_edit-square-outline-sharp.svg')),
             CustomMenu(
                 leading: SvgPicture.asset(
                     'assets/svg/material-symbols_perm-phone-msg-sharp.svg'),
-                text: "085344524567",
+                text: user?["phoneNumber"] ?? "",
                 trailing: SvgPicture.asset(
                     'assets/svg/material-symbols_edit-square-outline-sharp.svg')),
             const Divider(color: AppColors.black87),
-            const SizedBox(height: 12,),
-            const CustomTitleMenu(title: "Fitur",),
+            const SizedBox(
+              height: 12,
+            ),
+            const CustomTitleMenu(
+              title: "Fitur",
+            ),
             CustomMenu(
               onTap: () {
                 // CustomDialog.show(context, const UpdateStokGalon());
@@ -68,18 +86,21 @@ class HomeEmployee extends StatelessWidget {
             ),
             CustomMenu(
               onTap: () {
-                CustomNavigation.pushNavigate(context: context, screen: const HistoryTransaction());
+                CustomNavigation.pushNavigate(
+                    context: context, screen: const HistoryTransaction());
               },
-              leading:
-              SvgPicture.asset('assets/svg/pixelarticons_notes-multiple.svg'),
+              leading: SvgPicture.asset(
+                  'assets/svg/pixelarticons_notes-multiple.svg'),
               text: "Riwayat Transaksi",
               trailing: const Icon(
                 Icons.arrow_forward_ios,
                 color: AppColors.primaryColor,
               ),
             ),
-            SizedBox(height: 8,),
-            CustomMenuLogout()
+            const SizedBox(
+              height: 8,
+            ),
+            const CustomMenuLogout()
           ],
         ),
       ),

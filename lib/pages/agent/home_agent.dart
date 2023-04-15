@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tirtaasri_app/components/custom_appbar.dart';
@@ -13,12 +15,23 @@ import 'package:tirtaasri_app/utils/dialog.dart';
 import 'package:tirtaasri_app/utils/navigation.dart';
 
 import '../../components/custom_menu_logout.dart';
+import '../../utils/preferences_util.dart';
+import '../../utils/strings.dart';
 
-class HomeAgen extends StatelessWidget {
-  const HomeAgen({super.key});
+class HomeAgent extends StatelessWidget {
+  const HomeAgent({super.key, this.user});
+  final dynamic user;
 
   @override
   Widget build(BuildContext context) {
+    // final userSaved =
+    //     PreferencesUtil.getString(Strings.kUserLogin, defValue: null);
+    // dynamic user;
+    // if (user != null) {
+    //   debugPrint("user");
+    //   user = jsonDecode(userSaved);
+    // }
+
     return Scaffold(
       appBar: CustomAppBar(
         titleWidget: Image.asset(
@@ -28,27 +41,31 @@ class HomeAgen extends StatelessWidget {
       body: SafeArea(
           child: Column(
         children: [
-          const CustomAvatar(name: "Kios Fadila",),
+           CustomAvatar(
+            name: user?["agentName"] ?? "",
+          ),
           CustomText(
               text: "Agen",
               color: AppColors.primaryColor,
               style: AppStyles.regular12),
-          const CustomTitleMenu(title: "Profile",),
+          const CustomTitleMenu(
+            title: "Profile",
+          ),
           CustomMenu(
               leading:
                   SvgPicture.asset('assets/svg/iconoir_profile-circle.svg'),
-              text: "Ibu Suparti",
+              text: user?["name"] ?? "",
               trailing: SvgPicture.asset(
                   'assets/svg/material-symbols_edit-square-outline-sharp.svg')),
           CustomMenu(
               leading: SvgPicture.asset('assets/svg/ic_home_menu.svg'),
-              text: "Jl Spadem Gg Tawarakai III",
+              text: user?["address"] ?? "",
               trailing: SvgPicture.asset(
                   'assets/svg/material-symbols_edit-square-outline-sharp.svg')),
           CustomMenu(
               leading: SvgPicture.asset(
                   'assets/svg/material-symbols_perm-phone-msg-sharp.svg'),
-              text: "085344524567",
+              text: user?["phoneNumber"] ?? "",
               trailing: SvgPicture.asset(
                   'assets/svg/material-symbols_edit-square-outline-sharp.svg')),
           CustomMenu(
@@ -56,8 +73,12 @@ class HomeAgen extends StatelessWidget {
             text: "4 Galon",
           ),
           const Divider(color: AppColors.black87),
-          const SizedBox(height: 12,),
-          const CustomTitleMenu(title: "Fitur",),
+          const SizedBox(
+            height: 12,
+          ),
+          const CustomTitleMenu(
+            title: "Fitur",
+          ),
           CustomMenu(
             onTap: () {
               CustomDialog.show(context, const UpdateStokGalon());
@@ -71,7 +92,8 @@ class HomeAgen extends StatelessWidget {
           ),
           CustomMenu(
             onTap: () {
-              CustomNavigation.pushNavigate(context: context, screen: const HistoryTransaction());
+              CustomNavigation.pushNavigate(
+                  context: context, screen: const HistoryTransaction());
             },
             leading:
                 SvgPicture.asset('assets/svg/pixelarticons_notes-multiple.svg'),

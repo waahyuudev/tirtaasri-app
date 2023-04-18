@@ -44,6 +44,7 @@ class AppColors {
   static const Color redCard = Color(0XFFAD302E);
   static const Color orangeCard = Color(0XFFE78432);
   static const Color pinkCard = Color(0XFFE39693);
+  static const Color greyText = Color(0XFFA5ABAD);
 
   static const Color statusBarColor = Color(0XFFE3E7EC);
   static const Color blackToastColor = Color(0XFF2F2F2F);

@@ -1,33 +1,24 @@
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tirtaasri_app/components/custom_appbar.dart';
 import 'package:tirtaasri_app/components/custom_avatar.dart';
 import 'package:tirtaasri_app/components/custom_menu_logout.dart';
-import 'package:tirtaasri_app/utils/preferences_util.dart';
-import 'package:tirtaasri_app/utils/strings.dart';
+import 'package:tirtaasri_app/pages/employee/notification_pages.dart';
 
 import '../../components/custom_menu.dart';
 import '../../components/custom_title_menu.dart';
 import '../../theme/colors.dart';
-import '../../utils/dialog.dart';
 import '../../utils/navigation.dart';
 import '../agent/history_transaction.dart';
 
 class HomeEmployee extends StatelessWidget {
   const HomeEmployee({super.key, this.user});
+
   final dynamic user;
 
   @override
   Widget build(BuildContext context) {
-    // final userSaved =
-    //     PreferencesUtil.getString(Strings.kUserLogin, defValue: null);
-    // dynamic user;
-    // if (user != null) {
-    //   user = jsonDecode(userSaved);
-    // }
-
     return Scaffold(
       appBar: CustomAppBar(
         titleWidget: Image.asset(
@@ -36,7 +27,10 @@ class HomeEmployee extends StatelessWidget {
         onBack: () => Navigator.pop(context),
         actions: [
           IconButton(
-              onPressed: () {},
+              onPressed: () {
+                CustomNavigation.pushNavigate(
+                    context: context, screen: NotificationPage());
+              },
               icon: Badge(
                 child: SvgPicture.asset("assets/svg/ic_notification.svg"),
               ))

@@ -87,7 +87,7 @@ class HomeAgent extends StatelessWidget {
               CustomMenu(
                 onTap: () {
                   CustomNavigation.pushNavigate(
-                      context: context, screen: const HistoryTransaction());
+                      context: context, screen:  HistoryTransaction(user: user,));
                 },
                 leading:
                 SvgPicture.asset('assets/svg/pixelarticons_notes-multiple.svg'),

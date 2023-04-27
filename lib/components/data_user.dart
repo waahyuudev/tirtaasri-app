@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:tirtaasri_app/components/custom_appbar.dart';
 import 'package:tirtaasri_app/components/custom_text.dart';
@@ -6,8 +9,40 @@ import 'package:tirtaasri_app/theme/colors.dart';
 import 'package:tirtaasri_app/theme/styles.dart';
 import 'package:tirtaasri_app/utils/navigation.dart';
 
-class NotificationPage extends StatelessWidget {
-  const NotificationPage({super.key});
+class DataUsers extends StatefulWidget {
+  const DataUsers({super.key, this.onTapItem, required this.role});
+
+  final Function()? onTapItem;
+  final String role;
+
+  @override
+  State<DataUsers> createState() => _DataUsersState();
+}
+
+class _DataUsersState extends State<DataUsers> {
+  List<dynamic>? _listData;
+  final DatabaseReference _ref = FirebaseDatabase.instance.ref();
+
+  void _getData() async {
+    final snpUsers = await _ref.child('users/').get();
+    // final snTransactions = await _ref.child('transactions/').get();
+    setState(() {
+      if (snpUsers.exists) {
+        _listData = jsonDecode(jsonEncode(snpUsers.value));
+        _listData = _listData?.where((e) => e['role'] == widget.role).toList();
+        debugPrint("list data ${jsonEncode(_listData)}");
+        debugPrint("list data ${_listData?.length}");
+      } else {
+        debugPrint("transactions not found");
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    _getData();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,22 +71,20 @@ class NotificationPage extends StatelessWidget {
           const SizedBox(
             height: 12,
           ),
-          ItemNotification(
-            onTap: () {
-              CustomNavigation.pushNavigate(
-                  context: context, screen: const DetailRequest());
-            },
-            isExistNotification: true,
-          ),
-          const ItemNotification(
-            isExistNotification: false,
-          ),
-          const ItemNotification(
-            isExistNotification: true,
-          ),
-          const ItemNotification(
-            isExistNotification: false,
-          ),
+          (_listData != null)
+              ? Column(
+                  children: _listData!
+                      .map((e) => ItemNotification(
+                            user: e,
+                          ))
+                      .toList(),
+                )
+              : Center(
+                  child: CustomText(
+                      text: "Data tidak ditemukan",
+                      color: AppColors.primaryColor,
+                      style: AppStyles.regular14),
+                )
         ],
       )),
     );
@@ -60,9 +93,10 @@ class NotificationPage extends StatelessWidget {
 
 class ItemNotification extends StatelessWidget {
   const ItemNotification(
-      {super.key, required this.isExistNotification, this.onTap});
+      {super.key, this.isExistNotification, this.onTap, this.user});
 
-  final bool isExistNotification;
+  final bool? isExistNotification;
+  final dynamic user;
   final Function()? onTap;
 
   @override
@@ -79,23 +113,28 @@ class ItemNotification extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                (isExistNotification)
+                (isExistNotification ?? false)
                     ? Badge(
                         child: CustomText(
-                            text: "Tia Siomat (ibu sutini)",
+                            text: "${user['name']} (ibu sutini)",
                             color: AppColors.primaryColor,
                             style: AppStyles.regular14),
                       )
                     : CustomText(
-                        text: "Tia Siomat (ibu sutini)",
+                        text: "${user['name']} (ibu sutini)",
                         color: AppColors.primaryColor,
                         style: AppStyles.regular14),
                 CustomText(
-                    text: "Jalan raya mandala bampel",
+                    text: user['address'],
                     color: AppColors.primaryColor,
                     style: AppStyles.regular10),
               ],
             ),
+            const Spacer(),
+            CustomText(
+                text: user['phoneNumber'],
+                color: AppColors.primaryColor,
+                style: AppStyles.regular14),
             const Spacer(),
             CustomText(
                 text: "3 Galon",

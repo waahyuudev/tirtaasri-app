@@ -4,9 +4,9 @@ import 'package:tirtaasri_app/components/custom_appbar.dart';
 import 'package:tirtaasri_app/components/custom_menu_logout.dart';
 
 import '../../components/custom_menu.dart';
+import '../../components/data_user.dart';
 import '../../theme/colors.dart';
 import '../../utils/navigation.dart';
-import '../agent/history_transaction.dart';
 
 class HomeOwner extends StatelessWidget {
   const HomeOwner({super.key, this.user});
@@ -34,7 +34,10 @@ class HomeOwner extends StatelessWidget {
               ),
             ),
             CustomMenu(
-              onTap: () {},
+              onTap: () {
+                CustomNavigation.pushNavigate(
+                    context: context, screen: DataUsers(role: "agent"));
+              },
               leading: SvgPicture.asset('assets/svg/mdi_people-group.svg'),
               text: "Data Agen",
               trailing: const Icon(
@@ -44,7 +47,8 @@ class HomeOwner extends StatelessWidget {
             ),
             CustomMenu(
               onTap: () {
-                // CustomDialog.show(context, const UpdateStokGalon());
+                CustomNavigation.pushNavigate(
+                    context: context, screen: DataUsers(role: "employe"));
               },
               leading: SvgPicture.asset('assets/svg/mdi_people-group.svg'),
               text: "Data Karyawan",
@@ -54,9 +58,7 @@ class HomeOwner extends StatelessWidget {
               ),
             ),
             CustomMenu(
-              onTap: () {
-
-              },
+              onTap: () {},
               leading: SvgPicture.asset(
                   'assets/svg/pixelarticons_notes-multiple.svg'),
               text: "Laporan Penjualan",

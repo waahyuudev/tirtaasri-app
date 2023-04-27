@@ -1,10 +1,9 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tirtaasri_app/components/custom_appbar.dart';
 import 'package:tirtaasri_app/components/custom_avatar.dart';
 import 'package:tirtaasri_app/components/custom_menu_logout.dart';
-import 'package:tirtaasri_app/pages/employee/notification_pages.dart';
+import 'package:tirtaasri_app/components/data_user.dart';
 
 import '../../components/custom_menu.dart';
 import '../../components/custom_title_menu.dart';
@@ -29,7 +28,7 @@ class HomeEmployee extends StatelessWidget {
           IconButton(
               onPressed: () {
                 CustomNavigation.pushNavigate(
-                    context: context, screen: NotificationPage());
+                    context: context, screen: DataUsers(role: "agent"));
               },
               icon: Badge(
                 child: SvgPicture.asset("assets/svg/ic_notification.svg"),
@@ -69,10 +68,14 @@ class HomeEmployee extends StatelessWidget {
             ),
             CustomMenu(
               onTap: () {
-                // CustomDialog.show(context, const UpdateStokGalon());
+                CustomNavigation.pushNavigate(
+                    context: context,
+                    screen: DataUsers(
+                      role: "agent",
+                    ));
               },
               leading: SvgPicture.asset('assets/svg/mdi_people-group.svg'),
-              text: "Daftar Agen",
+              text: "Data Agen",
               trailing: const Icon(
                 Icons.arrow_forward_ios,
                 color: AppColors.primaryColor,
@@ -81,7 +84,10 @@ class HomeEmployee extends StatelessWidget {
             CustomMenu(
               onTap: () {
                 CustomNavigation.pushNavigate(
-                    context: context, screen: const HistoryTransaction());
+                    context: context,
+                    screen: HistoryTransaction(
+                      user: user,
+                    ));
               },
               leading: SvgPicture.asset(
                   'assets/svg/pixelarticons_notes-multiple.svg'),

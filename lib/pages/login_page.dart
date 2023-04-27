@@ -25,11 +25,11 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   TextEditingController usernameController = TextEditingController(text: '');
   TextEditingController passwordController = TextEditingController(text: '');
-  DatabaseReference ref = FirebaseDatabase.instance.ref();
+  final DatabaseReference _ref = FirebaseDatabase.instance.ref();
   List<dynamic>? listUser;
 
   void _getUser() async {
-    final snapshot = await ref.child('users/').get();
+    final snapshot = await _ref.child('users/').get();
     if (snapshot.exists) {
       listUser = jsonDecode(jsonEncode(snapshot.value));
       debugPrint("username ${listUser?[0]['username']}");
@@ -79,7 +79,7 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       backgroundColor: AppColors.white100,
       body: SafeArea(
-          child: Column(
+          child: ListView(
         children: [
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 16),

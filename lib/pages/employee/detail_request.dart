@@ -13,8 +13,35 @@ import 'package:tirtaasri_app/utils/strings.dart';
 
 import '../../theme/styles.dart';
 
-class DetailRequest extends StatelessWidget {
-  const DetailRequest({super.key});
+class DetailRequest extends StatefulWidget {
+  const DetailRequest({super.key, this.user});
+  final dynamic user;
+
+  @override
+  State<DetailRequest> createState() => _DetailRequestState();
+}
+
+class _DetailRequestState extends State<DetailRequest> {
+  int paidTotal = 0;
+  int unpaidTotal = 0;
+
+  void addTransaction() async {
+    var request = {
+      "agen": widget,
+      "quantity": "7",
+      "alamat": "Jl Bouroq",
+      "created_date": "1 Feb 2023",
+      "created_time": "17:24",
+      "amount": 14000,
+      "status": "Paid"
+    };
+  }
+
+  @override
+  void initState() {
+    paidTotal = int.parse(widget.user['stock']);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +64,13 @@ class DetailRequest extends StatelessWidget {
                     color: AppColors.primaryColor,
                     style: AppStyles.bold14),
               ),
-              const CustomCountTotal(),
+              CustomCountTotal(
+                total: (value) {
+                  setState(() {
+                    paidTotal = value;
+                  });
+                },
+              ),
               Container(
                 width: double.infinity,
                 child: CustomText(
@@ -56,10 +89,17 @@ class DetailRequest extends StatelessWidget {
                     color: AppColors.primaryColor,
                     style: AppStyles.bold14),
               ),
-              CustomText(
+              /*CustomText(
                   text: "2",
                   color: AppColors.primaryColor,
-                  style: AppStyles.bold16),
+                  style: AppStyles.bold16),*/
+              CustomCountTotal(
+                total: (value) {
+                  setState(() {
+                    unpaidTotal = value;
+                  });
+                },
+              ),
               Container(
                 width: double.infinity,
                 child: CustomText(
@@ -87,8 +127,19 @@ class DetailRequest extends StatelessWidget {
                   Expanded(
                     child: CustomButtonElevation(
                         onPressed: () {
-                          CustomDialog.show(
-                              context, const DialogConfirmation());
+                          CustomDialog.show(context, DialogConfirmation(
+                            onSaved: () {
+                              // todo for add transaction
+                              addTransaction();
+                              var user =
+                                  PreferencesUtil.getString(Strings.kUserLogin);
+                              CustomNavigation.pushAndRemoveUntil(
+                                  context: context,
+                                  destination: HomeEmployee(
+                                    user: jsonDecode(user),
+                                  ));
+                            },
+                          ));
                         },
                         textColor: AppColors.primaryColor,
                         backgroundColor: AppColors.aquaMiddleColor,
@@ -105,7 +156,9 @@ class DetailRequest extends StatelessWidget {
 }
 
 class DialogConfirmation extends StatelessWidget {
-  const DialogConfirmation({super.key});
+  const DialogConfirmation({super.key, required this.onSaved});
+
+  final Function() onSaved;
 
   @override
   Widget build(BuildContext context) {
@@ -134,14 +187,7 @@ class DialogConfirmation extends StatelessWidget {
             ),
             Expanded(
               child: CustomButtonElevation(
-                  onPressed: () {
-                    var user = PreferencesUtil.getString(Strings.kUserLogin);
-                    CustomNavigation.pushAndRemoveUntil(
-                        context: context,
-                        destination: HomeEmployee(
-                          user: jsonDecode(user),
-                        ));
-                  },
+                  onPressed: onSaved,
                   textColor: AppColors.primaryColor,
                   backgroundColor: AppColors.aquaMiddleColor,
                   text: "Simpan"),

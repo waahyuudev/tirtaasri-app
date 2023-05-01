@@ -36,7 +36,7 @@ class HomeOwner extends StatelessWidget {
             CustomMenu(
               onTap: () {
                 CustomNavigation.pushNavigate(
-                    context: context, screen: DataUsers(role: "agent"));
+                    context: context, screen: DataUsers(user: user));
               },
               leading: SvgPicture.asset('assets/svg/mdi_people-group.svg'),
               text: "Data Agen",
@@ -48,7 +48,7 @@ class HomeOwner extends StatelessWidget {
             CustomMenu(
               onTap: () {
                 CustomNavigation.pushNavigate(
-                    context: context, screen: DataUsers(role: "employe"));
+                    context: context, screen: DataUsers(user: user));
               },
               leading: SvgPicture.asset('assets/svg/mdi_people-group.svg'),
               text: "Data Karyawan",

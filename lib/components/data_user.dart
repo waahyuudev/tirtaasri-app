@@ -10,10 +10,10 @@ import 'package:tirtaasri_app/theme/styles.dart';
 import 'package:tirtaasri_app/utils/navigation.dart';
 
 class DataUsers extends StatefulWidget {
-  const DataUsers({super.key, this.onTapItem, required this.role});
+  const DataUsers({super.key, this.onTapItem, required this.user});
 
   final Function()? onTapItem;
-  final String role;
+  final dynamic user;
 
   @override
   State<DataUsers> createState() => _DataUsersState();
@@ -25,11 +25,14 @@ class _DataUsersState extends State<DataUsers> {
 
   void _getData() async {
     final snpUsers = await _ref.child('users/').get();
-    // final snTransactions = await _ref.child('transactions/').get();
     setState(() {
       if (snpUsers.exists) {
         _listData = jsonDecode(jsonEncode(snpUsers.value));
-        _listData = _listData?.where((e) => e['role'] == widget.role).toList();
+        _listData =
+            _listData?.where((e) => e['role'] == widget.user['role']).toList();
+        _listData?.forEach((e) {
+          getStock(_listData?.indexOf(e) ?? 0, e['username']);
+        });
         debugPrint("list data ${jsonEncode(_listData)}");
         debugPrint("list data ${_listData?.length}");
       } else {
@@ -44,8 +47,31 @@ class _DataUsersState extends State<DataUsers> {
     super.initState();
   }
 
+  Future<int> getStock(int index, String username) async {
+    int result = 0;
+    final ref = FirebaseDatabase.instance.ref();
+    DataSnapshot dataSnapshot = await ref.child("request").get();
+
+    if (dataSnapshot.value != null) {
+      Map<dynamic, dynamic>? values = dataSnapshot.value as Map?;
+      values?.forEach((key, item) {
+        debugPrint("item ${item.runtimeType}");
+        if (item['agent_name'] == username) {
+          result = item['stock'];
+          setState(() {
+            _listData?[index]['stock'] = result.toString();
+            _listData?[index]['is_updated'] = item['is_updated'];
+            _listData?[index]['key_request'] = key;
+          });
+        }
+      });
+    }
+    return result;
+  }
+
   @override
   Widget build(BuildContext context) {
+    debugPrint("listData update ${jsonEncode(_listData)}");
     return Scaffold(
       appBar: CustomAppBar(
           onBack: () => Navigator.pop(context),
@@ -76,6 +102,14 @@ class _DataUsersState extends State<DataUsers> {
                   children: _listData!
                       .map((e) => ItemNotification(
                             user: e,
+                            isExistNotification: e['is_updated'],
+                            onTap: () {
+                              CustomNavigation.pushNavigate(
+                                  context: context,
+                                  screen: DetailRequest(
+                                    user: widget.user,
+                                  ));
+                            },
                           ))
                       .toList(),
                 )
@@ -116,12 +150,12 @@ class ItemNotification extends StatelessWidget {
                 (isExistNotification ?? false)
                     ? Badge(
                         child: CustomText(
-                            text: "${user['name']} (ibu sutini)",
+                            text: "${user['name']}",
                             color: AppColors.primaryColor,
                             style: AppStyles.regular14),
                       )
                     : CustomText(
-                        text: "${user['name']} (ibu sutini)",
+                        text: "${user['name']}",
                         color: AppColors.primaryColor,
                         style: AppStyles.regular14),
                 CustomText(
@@ -137,7 +171,7 @@ class ItemNotification extends StatelessWidget {
                 style: AppStyles.regular14),
             const Spacer(),
             CustomText(
-                text: "3 Galon",
+                text: "${user['stock']} Galon",
                 color: AppColors.primaryColor,
                 style: AppStyles.regular14),
           ],

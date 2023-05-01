@@ -5,7 +5,9 @@ import '../theme/styles.dart';
 import 'custom_text.dart';
 
 class CustomCountTotal extends StatefulWidget {
-  const CustomCountTotal({super.key});
+  const CustomCountTotal({super.key, required this.total});
+
+  final Function(int total) total;
 
   @override
   State<CustomCountTotal> createState() => _CustomCountTotalState();
@@ -26,6 +28,7 @@ class _CustomCountTotalState extends State<CustomCountTotal> {
             if (total != 0) {
               setState(() {
                 total--;
+                widget.total(total);
               });
             }
           },
@@ -46,6 +49,7 @@ class _CustomCountTotalState extends State<CustomCountTotal> {
           onPressed: () {
             setState(() {
               total++;
+              widget.total(total);
             });
           },
           icon: const Icon(Icons.add, color: AppColors.primaryColor),

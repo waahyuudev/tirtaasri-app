@@ -28,7 +28,7 @@ class HomeEmployee extends StatelessWidget {
           IconButton(
               onPressed: () {
                 CustomNavigation.pushNavigate(
-                    context: context, screen: DataUsers(role: "agent"));
+                    context: context, screen: DataUsers(user: user));
               },
               icon: Badge(
                 child: SvgPicture.asset("assets/svg/ic_notification.svg"),
@@ -71,7 +71,7 @@ class HomeEmployee extends StatelessWidget {
                 CustomNavigation.pushNavigate(
                     context: context,
                     screen: DataUsers(
-                      role: "agent",
+                      user: user,
                     ));
               },
               leading: SvgPicture.asset('assets/svg/mdi_people-group.svg'),

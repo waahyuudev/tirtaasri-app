@@ -7,6 +7,7 @@ import 'package:tirtaasri_app/components/data_user.dart';
 
 import '../../components/custom_menu.dart';
 import '../../components/custom_title_menu.dart';
+import '../../components/data_request.dart';
 import '../../theme/colors.dart';
 import '../../utils/navigation.dart';
 import '../agent/history_transaction.dart';
@@ -28,7 +29,7 @@ class HomeEmployee extends StatelessWidget {
           IconButton(
               onPressed: () {
                 CustomNavigation.pushNavigate(
-                    context: context, screen: DataUsers(user: user));
+                    context: context, screen: DataRequests(user: user));
               },
               icon: Badge(
                 child: SvgPicture.asset("assets/svg/ic_notification.svg"),
@@ -70,7 +71,7 @@ class HomeEmployee extends StatelessWidget {
               onTap: () {
                 CustomNavigation.pushNavigate(
                     context: context,
-                    screen: DataUsers(
+                    screen: DataRequests(
                       user: user,
                     ));
               },

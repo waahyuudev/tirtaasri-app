@@ -14,8 +14,9 @@ import 'package:tirtaasri_app/utils/strings.dart';
 import '../../theme/styles.dart';
 
 class DetailRequest extends StatefulWidget {
-  const DetailRequest({super.key, this.user});
+  const DetailRequest({super.key, this.data, this.user});
   final dynamic user;
+  final dynamic data;
 
   @override
   State<DetailRequest> createState() => _DetailRequestState();
@@ -25,15 +26,29 @@ class _DetailRequestState extends State<DetailRequest> {
   int paidTotal = 0;
   int unpaidTotal = 0;
 
-  void addTransaction() async {
+  void addTransactionPaid() async {
     var request = {
-      "agen": widget,
+      "agen_id": widget,
+      "employee_id": widget,
       "quantity": "7",
       "alamat": "Jl Bouroq",
       "created_date": "1 Feb 2023",
       "created_time": "17:24",
       "amount": 14000,
       "status": "Paid"
+    };
+  }
+
+  void addTransactionUnPaid() async {
+    var request = {
+      "agen": widget,
+      "employee_id": widget,
+      "quantity": "7",
+      "alamat": "Jl Bouroq",
+      "created_date": "1 Feb 2023",
+      "created_time": "17:24",
+      "amount": 14000,
+      "status": "UnPaid"
     };
   }
 
@@ -130,7 +145,8 @@ class _DetailRequestState extends State<DetailRequest> {
                           CustomDialog.show(context, DialogConfirmation(
                             onSaved: () {
                               // todo for add transaction
-                              addTransaction();
+                              addTransactionPaid();
+                              addTransactionUnPaid();
                               var user =
                                   PreferencesUtil.getString(Strings.kUserLogin);
                               CustomNavigation.pushAndRemoveUntil(

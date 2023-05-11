@@ -47,19 +47,33 @@ class _LoginPageState extends State<LoginPage> {
               element['username'] == username &&
               element['password'] == password)
           .first;
+      int? indexUser = listUser?.indexOf(user, 0);
+
+      PreferencesUtil.setInt(
+          Strings.kUserId, (indexUser == null) ? 0 : indexUser);
+
       if (user != null) {
         if (user['role'] == User.owner.name) {
           // owner
           CustomNavigation.pushAndRemoveUntil(
-              context: context, destination: HomeOwner(user: user,));
+              context: context,
+              destination: HomeOwner(
+                user: user,
+              ));
         } else if (user['role'] == User.agent.name) {
           // agent
           CustomNavigation.pushAndRemoveUntil(
-              context: context, destination: HomeAgent(user: user,));
+              context: context,
+              destination: HomeAgent(
+                user: user,
+              ));
         } else {
           // employee
           CustomNavigation.pushAndRemoveUntil(
-              context: context, destination: HomeEmployee(user: user,));
+              context: context,
+              destination: HomeEmployee(
+                user: user,
+              ));
         }
         PreferencesUtil.setString(Strings.kUserLogin, jsonEncode(user));
       }

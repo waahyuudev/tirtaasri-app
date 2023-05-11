@@ -1,6 +1,3 @@
-import 'dart:async';
-import 'dart:convert';
-
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -16,11 +13,11 @@ import 'package:tirtaasri_app/theme/colors.dart';
 import 'package:tirtaasri_app/theme/styles.dart';
 import 'package:tirtaasri_app/utils/dialog.dart';
 import 'package:tirtaasri_app/utils/navigation.dart';
+import 'package:tirtaasri_app/utils/strings.dart';
 import 'package:tirtaasri_app/utils/toast.dart';
 
 import '../../components/custom_menu_logout.dart';
 import '../../utils/preferences_util.dart';
-import '../../utils/strings.dart';
 
 class HomeAgent extends StatelessWidget {
   const HomeAgent({super.key, this.user});
@@ -36,15 +33,17 @@ class HomeAgent extends StatelessWidget {
         ),
       ),
       body: SafeArea(
-          child: Column(
+          child: ListView(
         children: [
           CustomAvatar(
             name: user?["agentName"] ?? "",
           ),
           CustomText(
-              text: "Agen",
-              color: AppColors.primaryColor,
-              style: AppStyles.regular12),
+            text: "Agen",
+            color: AppColors.primaryColor,
+            style: AppStyles.regular12,
+            align: TextAlign.center,
+          ),
           const CustomTitleMenu(
             title: "Profile",
           ),
@@ -146,6 +145,8 @@ class _UpdateStokGalonState extends State<UpdateStokGalon> {
       });
     }
 
+    var userId = PreferencesUtil.getInt(Strings.kUserId);
+
     if (requestData != null) {
       await ref.update({
         "request/$reqKey/stock": total,
@@ -153,6 +154,7 @@ class _UpdateStokGalonState extends State<UpdateStokGalon> {
       });
     } else {
       requestData = {
+        "user_id": userId,
         "agent_name": widget.user['username'],
         "stock": total,
         "is_updated": true

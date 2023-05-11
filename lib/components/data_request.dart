@@ -23,9 +23,8 @@ class _DataRequestsState extends State<DataRequests> {
   List<dynamic>? _listData;
   final DatabaseReference _ref = FirebaseDatabase.instance.ref();
 
-  void getUser(int index) async {
-    int result = 0;
-    final snpUsers = await _ref.child('users/$index').get();
+  void getUser(int indexUser, int index) async {
+    final snpUsers = await _ref.child('users/$indexUser').get();
     setState(() {
       if (snpUsers.exists) {
         // _listData = jsonDecode(jsonEncode(snpUsers.value));
@@ -39,9 +38,15 @@ class _DataRequestsState extends State<DataRequests> {
         Map<dynamic, dynamic>? values = snpUsers.value as Map?;
         values?.forEach((key, item) {
           setState(() {
-            _listData?[index]['agent_name'] = item['agentName'];
-            _listData?[index]['address'] = item['address'];
-            _listData?[index]['phone_number'] = item['phoneNumber'];
+            if (key == "agentName") {
+              _listData?[index]['agent_name'] = item;
+            }
+            if (key == "address") {
+              _listData?[index]['address'] = item;
+            }
+            if (key == "phoneNumber") {
+              _listData?[index]['phone_number'] = item;
+            }
           });
         });
       } else {
@@ -62,10 +67,13 @@ class _DataRequestsState extends State<DataRequests> {
 
     if (dataSnapshot.value != null) {
       // Map<dynamic, dynamic>? values = dataSnapshot.value as Map?;
-      _listData = jsonDecode(jsonEncode(dataSnapshot.value));
+      _listData = snapshotToList(dataSnapshot);
       if (_listData!.isNotEmpty) {
+        int index = 0;
         for (var e in _listData!) {
-          getUser(e["user_id"]);
+          getUser(e["user_id"], index);
+          index++;
+
         }
       }
       // values?.forEach((key, item) {
@@ -78,6 +86,16 @@ class _DataRequestsState extends State<DataRequests> {
       //   });
       // });
     }
+  }
+
+  List<dynamic> snapshotToList(DataSnapshot snapshot) {
+    List<dynamic> list = [];
+    Map<dynamic, dynamic> values = snapshot.value as Map;
+    values.forEach((key, value) {
+      list.add(value);
+    });
+
+    return list;
   }
 
   @override

@@ -195,7 +195,7 @@ class ItemNotification extends StatelessWidget {
             ),
             const Spacer(),
             CustomText(
-                text: user['phoneNumber'],
+                text: user['phoneNumber']??"",
                 color: AppColors.primaryColor,
                 style: AppStyles.regular14),
             const Spacer(),

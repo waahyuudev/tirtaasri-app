@@ -15,7 +15,7 @@ class CustomNavigation {
               return FadeTransition(
                 opacity: CurvedAnimation(
                     parent: animation, curve: Curves.easeInOutBack),
-                child: child,
+                child: child ?? Container(),
               );
             },
             pageBuilder: (BuildContext context, Animation<double> animation,

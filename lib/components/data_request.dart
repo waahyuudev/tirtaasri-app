@@ -179,28 +179,28 @@ class ItemNotification extends StatelessWidget {
                 (isExistNotification ?? false)
                     ? Badge(
                         child: CustomText(
-                            text: "${user['name']}",
+                            text: "${user?['name'] ?? ''}",
                             color: AppColors.primaryColor,
                             style: AppStyles.regular14),
                       )
                     : CustomText(
-                        text: "${user['name']}",
+                        text: "${user?['name'] ?? ''}",
                         color: AppColors.primaryColor,
                         style: AppStyles.regular14),
                 CustomText(
-                    text: user['address'],
+                    text: user?['address'] ?? '',
                     color: AppColors.primaryColor,
                     style: AppStyles.regular10),
               ],
             ),
             const Spacer(),
             CustomText(
-                text: user['phoneNumber'],
+                text: user?['phoneNumber'] ?? '',
                 color: AppColors.primaryColor,
                 style: AppStyles.regular14),
             const Spacer(),
             CustomText(
-                text: "${user['stock']} Galon",
+                text: "${user?['stock'] ?? ''} Galon",
                 color: AppColors.primaryColor,
                 style: AppStyles.regular14),
           ],

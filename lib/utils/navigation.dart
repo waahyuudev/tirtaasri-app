@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 class CustomNavigation {
   static void navigate(
       {required BuildContext context, required Widget screen}) {

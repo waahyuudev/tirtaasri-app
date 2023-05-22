@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tirtaasri_app/components/custom_appbar.dart';
 import 'package:tirtaasri_app/components/custom_menu_logout.dart';
+import 'package:tirtaasri_app/components/data_laporan.dart';
 
 import '../../components/custom_menu.dart';
 import '../../components/data_user.dart';
@@ -58,7 +59,9 @@ class HomeOwner extends StatelessWidget {
               ),
             ),
             CustomMenu(
-              onTap: () {},
+              onTap: () {
+                CustomNavigation.pushNavigate(context: context, screen: DataLaporan(user: user, ));
+              },
               leading: SvgPicture.asset(
                   'assets/svg/pixelarticons_notes-multiple.svg'),
               text: "Laporan Penjualan",

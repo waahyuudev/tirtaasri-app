@@ -1,6 +1,8 @@
 import 'dart:convert';
 
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:tirtaasri_app/components/custom_button.dart';
 import 'package:tirtaasri_app/components/custom_count_total.dart';
 import 'package:tirtaasri_app/components/custom_text.dart';
@@ -15,6 +17,7 @@ import '../../theme/styles.dart';
 
 class DetailRequest extends StatefulWidget {
   const DetailRequest({super.key, this.data, this.user});
+
   final dynamic user;
   final dynamic data;
 
@@ -26,35 +29,51 @@ class _DetailRequestState extends State<DetailRequest> {
   int paidTotal = 0;
   int unpaidTotal = 0;
 
-  void addTransactionPaid() async {
+  void addTransaction() async {
+    DateTime now = DateTime.now();
+    String formattedDate = DateFormat('yyyy-MM-dd').format(now);
+    String formattedTime = DateFormat('HH:mm:ss').format(now);
+    final ref = FirebaseDatabase.instance.ref();
     var request = {
-      "agen_id": widget,
-      "employee_id": widget,
-      "quantity": "7",
-      "alamat": "Jl Bouroq",
-      "created_date": "1 Feb 2023",
-      "created_time": "17:24",
-      "amount": 14000,
-      "status": "Paid"
+      "agen_id": widget.data['user_id'] ?? 'Unknown',
+      "employee_id": widget.user['employee_id'] ?? 'Unknown',
+      "quantity": paidTotal,
+      "alamat": widget.user['address'],
+      "created_date": formattedDate,
+      "created_time": formattedTime,
+      "amount": 7000 * paidTotal,
     };
+
+    final newPostKey = ref.child('/request/').push().key;
+    final Map<String, Map> updates = {};
+    updates['/transaction/$newPostKey'] = request;
+    ref.update(updates);
   }
 
-  void addTransactionUnPaid() async {
-    var request = {
-      "agen": widget,
-      "employee_id": widget,
-      "quantity": "7",
-      "alamat": "Jl Bouroq",
-      "created_date": "1 Feb 2023",
-      "created_time": "17:24",
-      "amount": 14000,
-      "status": "UnPaid"
-    };
-  }
+  // void addTransactionUnPaid() async {
+  //   DateTime now = DateTime.now();
+  //   String formattedDate = DateFormat('yyyy-MM-dd').format(now);
+  //   String formattedTime = DateFormat('HH:mm:ss').format(now);
+  //   final ref = FirebaseDatabase.instance.ref();
+  //   var request = {
+  //     "agen_id": widget.user['agent_id'] ?? 'Unknown',
+  //     "employee_id": widget.user['employee_id'] ?? 'Unknown',
+  //     "quantity": unpaidTotal,
+  //     "alamat": "Jl Bouroq",
+  //     "created_date": formattedDate,
+  //     "created_time": formattedTime,
+  //     "amount": 7000 * unpaidTotal,
+  //   };
+  //
+  //   final newPostKey = ref.child('/request/').push().key;
+  //   final Map<String, Map> updates = {};
+  //   updates['/transaction_unpaid/$newPostKey'] = request;
+  //   ref.update(updates);
+  // }
 
   @override
   void initState() {
-    paidTotal = int.parse(widget.user['stock']);
+    paidTotal = int.parse(widget.user['stock'] ?? '0');
     super.initState();
   }
 
@@ -90,39 +109,39 @@ class _DetailRequestState extends State<DetailRequest> {
                 width: double.infinity,
                 child: CustomText(
                     align: TextAlign.end,
-                    text: "Rp, 35.000",
+                    text: "Rp, ${7000 * paidTotal}",
                     color: AppColors.primaryColor,
                     style: AppStyles.bold14),
               ),
               const SizedBox(
                 height: 10,
               ),
-              Container(
-                width: double.infinity,
-                child: CustomText(
-                    text: "Galon Piutang",
-                    color: AppColors.primaryColor,
-                    style: AppStyles.bold14),
-              ),
+              // Container(
+              //   width: double.infinity,
+              //   child: CustomText(
+              //       text: "Galon Piutang",
+              //       color: AppColors.primaryColor,
+              //       style: AppStyles.bold14),
+              // ),
               /*CustomText(
                   text: "2",
                   color: AppColors.primaryColor,
                   style: AppStyles.bold16),*/
-              CustomCountTotal(
-                total: (value) {
-                  setState(() {
-                    unpaidTotal = value;
-                  });
-                },
-              ),
-              Container(
-                width: double.infinity,
-                child: CustomText(
-                    align: TextAlign.end,
-                    text: "Rp, 35.000",
-                    color: AppColors.primaryColor,
-                    style: AppStyles.bold14),
-              ),
+              // CustomCountTotal(
+              //   total: (value) {
+              //     setState(() {
+              //       unpaidTotal = value;
+              //     });
+              //   },
+              // ),
+              // Container(
+              //   width: double.infinity,
+              //   child: CustomText(
+              //       align: TextAlign.end,
+              //       text: "Rp, 35.000",
+              //       color: AppColors.primaryColor,
+              //       style: AppStyles.bold14),
+              // ),
               const SizedBox(
                 height: 16,
               ),
@@ -145,8 +164,8 @@ class _DetailRequestState extends State<DetailRequest> {
                           CustomDialog.show(context, DialogConfirmation(
                             onSaved: () {
                               // todo for add transaction
-                              addTransactionPaid();
-                              addTransactionUnPaid();
+                              addTransaction();
+                              // addTransactionUnPaid();
                               var user =
                                   PreferencesUtil.getString(Strings.kUserLogin);
                               CustomNavigation.pushAndRemoveUntil(

@@ -137,6 +137,7 @@ class _DataRequestsState extends State<DataRequests> {
                                   context: context,
                                   screen: DetailRequest(
                                     user: widget.user,
+                                    data: e,
                                   ));
                             },
                           ))
@@ -179,12 +180,12 @@ class ItemNotification extends StatelessWidget {
                 (isExistNotification ?? false)
                     ? Badge(
                         child: CustomText(
-                            text: "${user['name']}",
+                            text: "${user['agent_name']}",
                             color: AppColors.primaryColor,
                             style: AppStyles.regular14),
                       )
                     : CustomText(
-                        text: "${user['name']}",
+                        text: "${user['agent_name']}",
                         color: AppColors.primaryColor,
                         style: AppStyles.regular14),
                 CustomText(

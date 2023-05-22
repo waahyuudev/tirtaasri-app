@@ -46,6 +46,8 @@ dependencies:
   flutter_html_to_pdf: ^0.7.0
   fluttertoast: ^8.1.1
   intl: ^0.18.1
+  image_picker: ^0.8.6+1
+  image_cropper: ^3.0.3
 
 dev_dependencies:
   flutter_test:

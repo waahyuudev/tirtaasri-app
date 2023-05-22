@@ -108,6 +108,7 @@ class _DataUsersState extends State<DataUsers> {
                                   context: context,
                                   screen: DetailRequest(
                                     user: widget.user,
+                                    data: e,
                                   ));
                             },
                           ))

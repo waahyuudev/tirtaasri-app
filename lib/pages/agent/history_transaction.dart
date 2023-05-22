@@ -29,22 +29,22 @@ class _HistoryTransactionState extends State<HistoryTransaction> {
     _listTransaction = [];
     _listRequest = [];
 
-    if (widget.user['role'] == User.employee.name) {
-      snapshot = await _ref.child('request/').get();
-
-      setState(() {
-        if (snapshot.exists) {
-          _listRequest = snapshotToList(snapshot);
-          _listRequest =
-              _listRequest.map((e) => {"requests": _listRequest}).toList();
-          debugPrint("list trx : ${jsonEncode(_listRequest)}");
-          debugPrint("list trx length : ${_listRequest.length}");
-        } else {
-          debugPrint("requests not found");
-        }
-      });
-    } else {
-      snapshot = await _ref.child('transactions/').get();
+    // if (widget.user['role'] == User.employee.name) {
+    //   snapshot = await _ref.child('request/').get();
+    //
+    //   setState(() {
+    //     if (snapshot.exists) {
+    //       _listRequest = snapshotToList(snapshot);
+    //       _listRequest =
+    //           _listRequest.map((e) => {"requests": _listRequest}).toList();
+    //       debugPrint("list trx : ${jsonEncode(_listRequest)}");
+    //       debugPrint("list trx length : ${_listRequest.length}");
+    //     } else {
+    //       debugPrint("requests not found");
+    //     }
+    //   });
+    // } else {
+      snapshot = await _ref.child('transaction/').get();
 
       setState(() {
         if (snapshot.exists) {
@@ -63,7 +63,8 @@ class _HistoryTransactionState extends State<HistoryTransaction> {
           debugPrint("transactions not found");
         }
       });
-    }
+      debugPrint("listTransaction ${jsonEncode(_listTransaction)}");
+    // }
   }
 
   List<dynamic> snapshotToList(DataSnapshot snapshot) {
@@ -131,8 +132,8 @@ class ItemTransactions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // List<dynamic> transactions = data['transactions'];
-    List<dynamic> requests = data['requests'];
+    List<dynamic> transactions = data['transactions'];
+    // List<dynamic> requests = data['requests'];
 
     return Column(
       children: [
@@ -141,14 +142,14 @@ class ItemTransactions extends StatelessWidget {
           color: AppColors.greyBgColor,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: CustomText(
-            text: "data['created_date']",
+            text: "${data['created_date']}",
             color: AppColors.greyText,
             style: AppStyles.bold14,
             align: TextAlign.left,
           ),
         ),
         Column(
-          children: requests
+          children: transactions
               .map(
                 (trx) => Container(
                   padding:

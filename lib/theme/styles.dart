@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 class AppStyles {
 
   static TextStyle regular10 = GoogleFonts.openSans(fontSize: 10, fontWeight: FontWeight.w400);
+  static TextStyle regular11 = GoogleFonts.openSans(fontSize: 11, fontWeight: FontWeight.w400);
   static TextStyle regular12 = GoogleFonts.openSans(fontSize: 12, fontWeight: FontWeight.w400);
   static TextStyle regular14 = GoogleFonts.openSans(fontSize: 14, fontWeight: FontWeight.w400);
   static TextStyle regular16 = GoogleFonts.openSans(fontSize: 16, fontWeight: FontWeight.w400);

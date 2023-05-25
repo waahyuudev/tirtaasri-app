@@ -22,6 +22,7 @@ class DataLaporan extends StatefulWidget {
 
 class _DataLaporanState extends State<DataLaporan> {
   DateTime selectedDate = DateTime.now(); // Tanggal default saat belum dipilih
+  DateTime selectedDate2 = DateTime.now(); // Tanggal default saat belum dipilih
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(
@@ -34,6 +35,21 @@ class _DataLaporanState extends State<DataLaporan> {
     if (pickedDate != null && pickedDate != selectedDate) {
       setState(() {
         selectedDate = pickedDate;
+      });
+    }
+  }
+
+  Future<void> _selectDate2(BuildContext context) async {
+    final DateTime? pickedDate2 = await showDatePicker(
+      context: context,
+      initialDate: selectedDate2,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+
+    if (pickedDate2 != null && pickedDate2 != selectedDate2) {
+      setState(() {
+        selectedDate2 = pickedDate2;
       });
     }
   }
@@ -65,7 +81,10 @@ class _DataLaporanState extends State<DataLaporan> {
                 SizedBox(height: 10),
                 //Container Pilih Tanggal
                 InkWell(
-                  onTap: () => _selectDate(context),
+                  onTap: () {
+                    _selectDate(context);
+                    _selectDate2(context);
+                  },
                   child: Container(
                     width: 402,
                     height: 43,
@@ -85,18 +104,39 @@ class _DataLaporanState extends State<DataLaporan> {
                     ),
                     child: Row(
                       children: [
-                            Container(
-                              width: 27,
-                              height: 27,
-                              child:  SvgPicture.asset("assets/svg/uiw_date.svg")
-                            ),
-                            SizedBox(width: 10,),
-                            CustomText(
-                                text: _formatDate(selectedDate), // Menggunakan format tanggal yang diperbarui
-                                color: AppColors.primaryColor,
-                                style: AppStyles.regular10),
-                          ],
+                        Container(
+                          width: 27,
+                          height: 27,
+                          child: SvgPicture.asset("assets/svg/uiw_date.svg"),
                         ),
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: Container(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                CustomText(
+                                  text: _formatDate(selectedDate2),
+                                  color: AppColors.primaryColor,
+                                  style: AppStyles.regular10,
+                                ),
+                                CustomText(
+                                  text: ' - ',
+                                  color: AppColors.primaryColor,
+                                  style: AppStyles.regular10,
+                                ),
+                                CustomText(
+                                  text: _formatDate(selectedDate), // Ganti dengan variabel tanggal kedua yang sesuai
+                                  color: AppColors.primaryColor,
+                                  style: AppStyles.regular10,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 SizedBox(height: 10),

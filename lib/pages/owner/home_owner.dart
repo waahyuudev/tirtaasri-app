@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tirtaasri_app/components/custom_appbar.dart';
 import 'package:tirtaasri_app/components/custom_menu_logout.dart';
+import 'package:tirtaasri_app/pages/owner/add_user_page.dart';
+import 'package:tirtaasri_app/pages/owner/data_employee.dart';
 
 import '../../components/custom_menu.dart';
 import '../../components/data_user.dart';
@@ -25,7 +27,10 @@ class HomeOwner extends StatelessWidget {
         child: Column(
           children: [
             CustomMenu(
-              onTap: () {},
+              onTap: () {
+                CustomNavigation.pushNavigate(
+                    context: context, screen: AddUserPage());
+              },
               leading: SvgPicture.asset('assets/svg/mdi_user-add-outline.svg'),
               text: "Tambah User",
               trailing: const Icon(
@@ -48,7 +53,7 @@ class HomeOwner extends StatelessWidget {
             CustomMenu(
               onTap: () {
                 CustomNavigation.pushNavigate(
-                    context: context, screen: DataUsers(user: user));
+                    context: context, screen: DataEmployee(user: user));
               },
               leading: SvgPicture.asset('assets/svg/mdi_people-group.svg'),
               text: "Data Karyawan",

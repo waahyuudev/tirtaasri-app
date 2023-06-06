@@ -24,7 +24,7 @@ class _DataUsersState extends State<DataUsers> {
   final DatabaseReference _ref = FirebaseDatabase.instance.ref();
 
   void _getData() async {
-    final snpUsers = await _ref.child('users/').get();
+    final snpUsers = await _ref.child('user/').get();
     setState(() {
       if (snpUsers.exists) {
         _listData = jsonDecode(jsonEncode(snpUsers.value));

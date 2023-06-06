@@ -4,6 +4,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tirtaasri_app/components/custom_button.dart';
+import 'package:tirtaasri_app/components/custom_dialog.dart';
 import 'package:tirtaasri_app/components/custom_input_text.dart';
 import 'package:tirtaasri_app/pages/agent/home_agent.dart';
 import 'package:tirtaasri_app/pages/employee/home_employee.dart';
@@ -26,65 +27,64 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController usernameController = TextEditingController(text: '');
   TextEditingController passwordController = TextEditingController(text: '');
   final DatabaseReference _ref = FirebaseDatabase.instance.ref();
-  List<dynamic>? listUser;
 
-  void _getUser() async {
-    final snapshot = await _ref.child('users/').get();
-    if (snapshot.exists) {
-      listUser = jsonDecode(jsonEncode(snapshot.value));
-      debugPrint("username ${listUser?[0]['username']}");
-    } else {
-      debugPrint("user not found");
-    }
+  void queryData({required Function(dynamic) user}) async {
+    String name = usernameController.text;
+    String password = passwordController.text;
+    final snapshot = await _ref.child('user/').get();
+    Map<Object?, Object?> userData = snapshot.value as Map<Object?, Object?>;
+    Map<dynamic, dynamic>? userFound;
+    userData.forEach((key, value) {
+      final user = value as Map<dynamic, dynamic>;
+      if (user["username"] == name) {
+        if (user["password"] == password) {
+          userFound = user;
+        }
+      }
+    });
+    user(userFound);
   }
 
-  void _validateUser() {
-    if (listUser != null) {
-      String username = usernameController.text;
-      String password = passwordController.text;
-      var user = listUser
-          ?.where((element) =>
-              element['username'] == username &&
-              element['password'] == password)
-          .first;
-      int? indexUser = listUser?.indexOf(user, 0);
-
-      PreferencesUtil.setInt(
-          Strings.kUserId, (indexUser == null) ? 0 : indexUser);
-
-      if (user != null) {
-        if (user['role'] == User.owner.name) {
+  void _validateLogin() {
+    queryData(user: (userFound) {
+      if (userFound != null) {
+        if (userFound!['role'] == User.owner.name) {
           // owner
           CustomNavigation.pushAndRemoveUntil(
               context: context,
               destination: HomeOwner(
-                user: user,
+                user: userFound,
               ));
-        } else if (user['role'] == User.agent.name) {
+        } else if (userFound!['role'] == User.agent.name) {
           // agent
           CustomNavigation.pushAndRemoveUntil(
               context: context,
               destination: HomeAgent(
-                user: user,
+                user: userFound,
               ));
         } else {
           // employee
           CustomNavigation.pushAndRemoveUntil(
               context: context,
               destination: HomeEmployee(
-                user: user,
+                user: userFound,
               ));
         }
-        PreferencesUtil.setString(Strings.kUserLogin, jsonEncode(user));
+        PreferencesUtil.setString(Strings.kUserLogin, jsonEncode(userFound));
+      } else {
+        CustomDialog(
+            title: 'Gagal Login',
+            description: 'Username/Password tidak sesuai',
+            textButton: 'OK',
+            onOkButtonPressed: () {
+              Navigator.pop(context);
+            }).show(context);
       }
-    } else {
-      debugPrint("data not found");
-    }
+    });
   }
 
   @override
   void initState() {
-    _getUser();
     super.initState();
   }
 
@@ -124,7 +124,7 @@ class _LoginPageState extends State<LoginPage> {
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             child: CustomButtonElevation(
                 onPressed: () {
-                  _validateUser();
+                  _validateLogin();
                 },
                 width: double.infinity,
                 textColor: AppColors.white100,

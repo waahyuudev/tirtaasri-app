@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 class CustomNavigation {
   static void navigate(
       {required BuildContext context, required Widget screen}) {
@@ -15,7 +14,7 @@ class CustomNavigation {
               return FadeTransition(
                 opacity: CurvedAnimation(
                     parent: animation, curve: Curves.easeInOutBack),
-                child: child,
+                child: child ?? Container(),
               );
             },
             pageBuilder: (BuildContext context, Animation<double> animation,

@@ -73,7 +73,7 @@ class _DetailRequestState extends State<DetailRequest> {
 
   @override
   void initState() {
-    paidTotal = int.parse(widget.user['stock'] ?? '0');
+    paidTotal = widget.user['stock'] != null ? int.parse(widget.user['stock']) : 0;
     super.initState();
   }
 

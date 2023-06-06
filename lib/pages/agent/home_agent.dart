@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -17,12 +19,39 @@ import 'package:tirtaasri_app/utils/strings.dart';
 import 'package:tirtaasri_app/utils/toast.dart';
 
 import '../../components/custom_menu_logout.dart';
-import '../../utils/preferences_util.dart';
 
-class HomeAgent extends StatelessWidget {
+class HomeAgent extends StatefulWidget {
   const HomeAgent({super.key, this.user});
 
   final dynamic user;
+
+  @override
+  State<HomeAgent> createState() => _HomeAgentState();
+}
+
+class _HomeAgentState extends State<HomeAgent> {
+  final DatabaseReference _ref = FirebaseDatabase.instance.ref();
+  int stock = 0;
+  
+  void queryStock() async {
+    final snapshot = await _ref.child('request/').get();
+    Map<Object?, Object?> requestData = snapshot.value as Map<Object?, Object?>;
+    requestData.forEach((key, value) {
+      final request = value as Map<dynamic, dynamic>;
+      debugPrint("request ${jsonEncode(request)}");
+      if (request['agent_name'] == widget.user['username']) {
+        setState(() {
+          stock = request['stock'];
+        });
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    queryStock();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +65,7 @@ class HomeAgent extends StatelessWidget {
           child: ListView(
         children: [
           CustomAvatar(
-            name: user?["agentName"] ?? "",
+            name: widget.user?["agentName"] ?? "",
           ),
           CustomText(
             text: "Agen",
@@ -50,23 +79,23 @@ class HomeAgent extends StatelessWidget {
           CustomMenu(
               leading:
                   SvgPicture.asset('assets/svg/iconoir_profile-circle.svg'),
-              text: user?["name"] ?? "",
+              text: widget.user?["name"] ?? "",
               trailing: SvgPicture.asset(
                   'assets/svg/material-symbols_edit-square-outline-sharp.svg')),
           CustomMenu(
               leading: SvgPicture.asset('assets/svg/ic_home_menu.svg'),
-              text: user?["address"] ?? "",
+              text: widget.user?["address"] ?? "",
               trailing: SvgPicture.asset(
                   'assets/svg/material-symbols_edit-square-outline-sharp.svg')),
           CustomMenu(
               leading: SvgPicture.asset(
                   'assets/svg/material-symbols_perm-phone-msg-sharp.svg'),
-              text: user?["phoneNumber"] ?? "",
+              text: widget.user?["phoneNumber"] ?? "",
               trailing: SvgPicture.asset(
                   'assets/svg/material-symbols_edit-square-outline-sharp.svg')),
           CustomMenu(
             leading: SvgPicture.asset('assets/svg/mdi_box-variant.svg'),
-            text: "4 Galon",
+            text: "$stock Galon",
           ),
           const Divider(color: AppColors.black87),
           const SizedBox(
@@ -80,7 +109,7 @@ class HomeAgent extends StatelessWidget {
               CustomDialog.show(
                   context,
                   UpdateStokGalon(
-                    user: user,
+                    user: widget.user,
                   ));
             },
             leading: SvgPicture.asset('assets/svg/mdi_box-variant-add.svg'),
@@ -95,7 +124,7 @@ class HomeAgent extends StatelessWidget {
               CustomNavigation.pushNavigate(
                   context: context,
                   screen: HistoryTransaction(
-                    user: user,
+                    user: widget.user,
                   ));
             },
             leading:
@@ -127,7 +156,7 @@ class UpdateStokGalon extends StatefulWidget {
 
 class _UpdateStokGalonState extends State<UpdateStokGalon> {
   int total = 0;
-
+  
   void updateStokGalon() async {
     dynamic requestData;
     String? reqKey;
@@ -145,8 +174,6 @@ class _UpdateStokGalonState extends State<UpdateStokGalon> {
       });
     }
 
-    var userId = PreferencesUtil.getInt(Strings.kUserId);
-
     if (requestData != null) {
       await ref.update({
         "request/$reqKey/stock": total,
@@ -154,7 +181,6 @@ class _UpdateStokGalonState extends State<UpdateStokGalon> {
       });
     } else {
       requestData = {
-        "user_id": userId,
         "agent_name": widget.user['username'],
         "stock": total,
         "is_updated": true

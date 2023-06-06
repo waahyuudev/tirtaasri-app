@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:tirtaasri_app/components/custom_text.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:tirtaasri_app/utils/navigation.dart';
 
 import '../theme/colors.dart';
 import '../theme/styles.dart';
@@ -69,6 +70,8 @@ class _DataLaporanState extends State<DataLaporan> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
+        withLeading: true,
+        onBack: () => Navigator.pop(context),
         titleWidget: Image.asset(
           "assets/png/app_bar_logo.png",
         ),
@@ -141,78 +144,78 @@ class _DataLaporanState extends State<DataLaporan> {
                 ),
                 SizedBox(height: 10),
                 //Container Button penjualan dan piutang
-                Container(
-                  child: Row(
-                    children: [
-                      InkWell(
-                        onTap: (){},
-                        child: Container(
-                          width: 176,
-                          height: 51,
-                          padding: const EdgeInsets.all(10.0),
-                          margin: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(1.0),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.5),
-                                spreadRadius: 2,
-                                blurRadius: 5,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Center(
-                                  child: CustomText(
-                                      text: 'Laporan Penjualan',
-                                      color: AppColors.primaryColor,
-                                      style: AppStyles.regular11),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      InkWell(
-                        onTap: (){},
-                        child: Container(
-                          width: 176,
-                          height: 51,
-                          padding: const EdgeInsets.all(10.0),
-                          margin: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(1.0),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.5),
-                                spreadRadius: 2,
-                                blurRadius: 5,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Center(
-                                  child: CustomText(
-                                      text: 'Laporan Piutang',
-                                      color: AppColors.primaryColor,
-                                      style: AppStyles.regular11),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                // Container(
+                //   child: Row(
+                //     children: [
+                //       InkWell(
+                //         onTap: (){},
+                //         child: Container(
+                //           width: 176,
+                //           height: 51,
+                //           padding: const EdgeInsets.all(10.0),
+                //           margin: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
+                //           decoration: BoxDecoration(
+                //             color: Colors.white,
+                //             borderRadius: BorderRadius.circular(1.0),
+                //             boxShadow: [
+                //               BoxShadow(
+                //                 color: Colors.grey.withOpacity(0.5),
+                //                 spreadRadius: 2,
+                //                 blurRadius: 5,
+                //                 offset: const Offset(0, 3),
+                //               ),
+                //             ],
+                //           ),
+                //           child: Row(
+                //             children: [
+                //               Expanded(
+                //                 child: Center(
+                //                   child: CustomText(
+                //                       text: 'Laporan Penjualan',
+                //                       color: AppColors.primaryColor,
+                //                       style: AppStyles.regular11),
+                //                 ),
+                //               ),
+                //             ],
+                //           ),
+                //         ),
+                //       ),
+                //       InkWell(
+                //         onTap: (){},
+                //         child: Container(
+                //           width: 176,
+                //           height: 51,
+                //           padding: const EdgeInsets.all(10.0),
+                //           margin: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
+                //           decoration: BoxDecoration(
+                //             color: Colors.white,
+                //             borderRadius: BorderRadius.circular(1.0),
+                //             boxShadow: [
+                //               BoxShadow(
+                //                 color: Colors.grey.withOpacity(0.5),
+                //                 spreadRadius: 2,
+                //                 blurRadius: 5,
+                //                 offset: const Offset(0, 3),
+                //               ),
+                //             ],
+                //           ),
+                //           child: Row(
+                //             children: [
+                //               Expanded(
+                //                 child: Center(
+                //                   child: CustomText(
+                //                       text: 'Laporan Piutang',
+                //                       color: AppColors.primaryColor,
+                //                       style: AppStyles.regular11),
+                //                 ),
+                //               ),
+                //             ],
+                //           ),
+                //         ),
+                //       ),
+                //     ],
+                //   ),
+                // ),
                 SizedBox(height: 10),
                 //Container Button Cetak Pdf
                 InkWell(

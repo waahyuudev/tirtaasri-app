@@ -35,8 +35,7 @@ class _DetailRequestState extends State<DetailRequest> {
     String formattedTime = DateFormat('HH:mm:ss').format(now);
     final ref = FirebaseDatabase.instance.ref();
     var request = {
-      "agen_id": widget.data['user_id'] ?? 'Unknown',
-      "employee_id": widget.user['employee_id'] ?? 'Unknown',
+      "employee_name": widget.user['name'] ?? 'Unknown',
       "quantity": paidTotal,
       "alamat": widget.user['address'],
       "created_date": formattedDate,
@@ -49,27 +48,6 @@ class _DetailRequestState extends State<DetailRequest> {
     updates['/transaction/$newPostKey'] = request;
     ref.update(updates);
   }
-
-  // void addTransactionUnPaid() async {
-  //   DateTime now = DateTime.now();
-  //   String formattedDate = DateFormat('yyyy-MM-dd').format(now);
-  //   String formattedTime = DateFormat('HH:mm:ss').format(now);
-  //   final ref = FirebaseDatabase.instance.ref();
-  //   var request = {
-  //     "agen_id": widget.user['agent_id'] ?? 'Unknown',
-  //     "employee_id": widget.user['employee_id'] ?? 'Unknown',
-  //     "quantity": unpaidTotal,
-  //     "alamat": "Jl Bouroq",
-  //     "created_date": formattedDate,
-  //     "created_time": formattedTime,
-  //     "amount": 7000 * unpaidTotal,
-  //   };
-  //
-  //   final newPostKey = ref.child('/request/').push().key;
-  //   final Map<String, Map> updates = {};
-  //   updates['/transaction_unpaid/$newPostKey'] = request;
-  //   ref.update(updates);
-  // }
 
   @override
   void initState() {
@@ -116,32 +94,6 @@ class _DetailRequestState extends State<DetailRequest> {
               const SizedBox(
                 height: 10,
               ),
-              // Container(
-              //   width: double.infinity,
-              //   child: CustomText(
-              //       text: "Galon Piutang",
-              //       color: AppColors.primaryColor,
-              //       style: AppStyles.bold14),
-              // ),
-              /*CustomText(
-                  text: "2",
-                  color: AppColors.primaryColor,
-                  style: AppStyles.bold16),*/
-              // CustomCountTotal(
-              //   total: (value) {
-              //     setState(() {
-              //       unpaidTotal = value;
-              //     });
-              //   },
-              // ),
-              // Container(
-              //   width: double.infinity,
-              //   child: CustomText(
-              //       align: TextAlign.end,
-              //       text: "Rp, 35.000",
-              //       color: AppColors.primaryColor,
-              //       style: AppStyles.bold14),
-              // ),
               const SizedBox(
                 height: 16,
               ),

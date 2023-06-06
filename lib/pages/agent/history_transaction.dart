@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tirtaasri_app/components/custom_appbar.dart';
 import 'package:tirtaasri_app/components/custom_text.dart';
-import 'package:tirtaasri_app/pages/login_page.dart';
 import 'package:tirtaasri_app/theme/colors.dart';
 import 'package:tirtaasri_app/theme/styles.dart';
 
@@ -20,51 +19,35 @@ class HistoryTransaction extends StatefulWidget {
 
 class _HistoryTransactionState extends State<HistoryTransaction> {
   late List<dynamic> _listTransaction;
-  late List<dynamic> _listRequest;
 
   final DatabaseReference _ref = FirebaseDatabase.instance.ref();
 
   void _getTransactions() async {
     DataSnapshot snapshot;
     _listTransaction = [];
-    _listRequest = [];
 
-    // if (widget.user['role'] == User.employee.name) {
-    //   snapshot = await _ref.child('request/').get();
-    //
-    //   setState(() {
-    //     if (snapshot.exists) {
-    //       _listRequest = snapshotToList(snapshot);
-    //       _listRequest =
-    //           _listRequest.map((e) => {"requests": _listRequest}).toList();
-    //       debugPrint("list trx : ${jsonEncode(_listRequest)}");
-    //       debugPrint("list trx length : ${_listRequest.length}");
-    //     } else {
-    //       debugPrint("requests not found");
-    //     }
-    //   });
-    // } else {
-      snapshot = await _ref.child('transaction/').get();
+    snapshot = await _ref.child('transaction/').get();
 
-      setState(() {
-        if (snapshot.exists) {
-          _listTransaction = snapshotToList(snapshot);
-          _listTransaction = _listTransaction
-              .map((e) => {
-                    "created_date": e['created_date'],
-                    "transactions": _listTransaction
-                        .where((k) => k['created_date'] == e['created_date'])
-                        .toList()
-                  })
-              .toList();
-          debugPrint("list trx ${jsonEncode(_listTransaction)}");
-          debugPrint("list trx ${_listTransaction.length}");
-        } else {
-          debugPrint("transactions not found");
-        }
-      });
-      debugPrint("listTransaction ${jsonEncode(_listTransaction)}");
-    // }
+    setState(() {
+      if (snapshot.exists) {
+        _listTransaction = snapshotToList(snapshot);
+        var dateKeys =
+            _listTransaction.where((e) => e['agen_username'] == widget.user['username']).map((e) => e['created_date']).toSet().toList();
+        _listTransaction = dateKeys
+            .map((e) => {
+                  "created_date": e,
+                  "transactions": _listTransaction
+                      .where((k) => k['created_date'] == e && k['agen_username'] == widget.user['username'])
+                      .toList()
+                })
+            .toList();
+        debugPrint("list trx ${jsonEncode(_listTransaction)}");
+        debugPrint("list trx ${_listTransaction.length}");
+      } else {
+        debugPrint("transactions not found");
+      }
+    });
+    debugPrint("listTransaction ${jsonEncode(_listTransaction)}");
   }
 
   List<dynamic> snapshotToList(DataSnapshot snapshot) {
@@ -100,25 +83,15 @@ class _HistoryTransactionState extends State<HistoryTransaction> {
         ],
       ),
       body: SafeArea(
-        child: (_listTransaction.isNotEmpty)
-            ? ListView(
-                children: _listTransaction
-                    .map((e) => ItemTransactions(
-                          data: e,
-                          user: widget.user,
-                        ))
-                    .toList(),
-              )
-            : (_listRequest.isNotEmpty)
-                ? ListView(
-                    children: _listRequest
-                        .map((e) => ItemTransactions(
-                              data: e,
-                              user: widget.user,
-                            ))
-                        .toList(),
-                  )
-                : Container(),
+        child:
+            ListView(
+          children: _listTransaction
+              .map((e) => ItemTransactions(
+                    data: e,
+                    user: widget.user,
+                  ))
+              .toList(),
+        ),
       ),
     );
   }
@@ -161,14 +134,8 @@ class ItemTransactions extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          (user['role'] == User.agent.name)
-                              ? CustomText(
-                                  text: trx['agent_name'],
-                                  color: AppColors.primaryColor,
-                                  style: AppStyles.bold16)
-                              : Container(),
                           CustomText(
-                              text: "${trx['stock']} Galon",
+                              text: "${trx['quantity']} Galon",
                               color: AppColors.primaryColor,
                               style: AppStyles.bold16),
                           CustomText(
@@ -177,24 +144,11 @@ class ItemTransactions extends StatelessWidget {
                               style: AppStyles.bold12),
                         ],
                       ),
-                      // const Spacer(),
-                      // Column(
-                      //   mainAxisAlignment: MainAxisAlignment.end,
-                      //   crossAxisAlignment: CrossAxisAlignment.end,
-                      //   children: [
-                      //     CustomText(
-                      //         text: (trx['status'].toString().toLowerCase() ==
-                      //                 "paid")
-                      //             ? "Berhasil"
-                      //             : "Belum dibayar",
-                      //         color: Colors.green,
-                      //         style: AppStyles.bold14),
-                      //     CustomText(
-                      //         text: trx['created_time'],
-                      //         color: AppColors.primaryColor,
-                      //         style: AppStyles.bold12),
-                      //   ],
-                      // )
+                      const Spacer(),
+                      CustomText(
+                          text: "${trx['created_time']}",
+                          color: AppColors.primaryColor,
+                          style: AppStyles.bold12)
                     ],
                   ),
                 ),

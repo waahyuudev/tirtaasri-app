@@ -27,14 +27,6 @@ class _DataRequestsState extends State<DataRequests> {
     final snpUsers = await _ref.child('users/$indexUser').get();
     setState(() {
       if (snpUsers.exists) {
-        // _listData = jsonDecode(jsonEncode(snpUsers.value));
-        // _listData =
-        //     _listData?.where((e) => e['role'] == widget.user['role']).toList();
-        // _listData?.forEach((e) {
-        //   getRequest(_listData?.indexOf(e) ?? 0, e['username']);
-        // });
-        // debugPrint("list data ${jsonEncode(_listData)}");
-        // debugPrint("list data ${_listData?.length}");
         Map<dynamic, dynamic>? values = snpUsers.value as Map?;
         values?.forEach((key, item) {
           setState(() {
@@ -76,15 +68,6 @@ class _DataRequestsState extends State<DataRequests> {
 
         }
       }
-      // values?.forEach((key, item) {
-      //   debugPrint("item ${item.runtimeType}");
-      //   result = item['stock'];
-      //   setState(() {
-      //     _listData?[index]['stock'] = result.toString();
-      //     _listData?[index]['is_updated'] = item['is_updated'];
-      //     _listData?[index]['key_request'] = key;
-      //   });
-      // });
     }
   }
 

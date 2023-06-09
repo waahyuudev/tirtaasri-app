@@ -27,7 +27,41 @@ class DetailRequest extends StatefulWidget {
 
 class _DetailRequestState extends State<DetailRequest> {
   int paidTotal = 0;
-  int unpaidTotal = 0;
+
+  void updateStokGalon() async {
+    dynamic requestData;
+    String? reqKey;
+    final ref = FirebaseDatabase.instance.ref();
+    DataSnapshot dataSnapshot = await ref.child("request").get();
+
+    if (dataSnapshot.value != null) {
+      Map<dynamic, dynamic>? values = dataSnapshot.value as Map?;
+      values?.forEach((key, item) {
+        debugPrint("item ${item.runtimeType}");
+        if (item['agent_name'] == widget.data['username']) {
+          requestData = item;
+          reqKey = key;
+        }
+      });
+    }
+
+    if (requestData != null) {
+      await ref.update({
+        "request/$reqKey/stock": paidTotal,
+        "request/$reqKey/is_updated": false,
+      });
+    } else {
+      requestData = {
+        "agent_name": widget.user['username'],
+        "stock": paidTotal,
+        "is_updated": false
+      };
+      final newPostKey = ref.child('/request/').push().key;
+      final Map<String, Map> updates = {};
+      updates['/request/$newPostKey'] = requestData;
+      ref.update(updates);
+    }
+  }
 
   void addTransaction() async {
     DateTime now = DateTime.now();
@@ -35,7 +69,8 @@ class _DetailRequestState extends State<DetailRequest> {
     String formattedTime = DateFormat('HH:mm:ss').format(now);
     final ref = FirebaseDatabase.instance.ref();
     var request = {
-      "employee_name": widget.user['name'] ?? 'Unknown',
+      "agent_username": widget.data['username'],
+      "employee_name": widget.user['username'],
       "quantity": paidTotal,
       "alamat": widget.user['address'],
       "created_date": formattedDate,
@@ -114,10 +149,11 @@ class _DetailRequestState extends State<DetailRequest> {
                     child: CustomButtonElevation(
                         onPressed: () {
                           CustomDialog.show(context, DialogConfirmation(
+                            total: paidTotal,
                             onSaved: () {
                               // todo for add transaction
                               addTransaction();
-                              // addTransactionUnPaid();
+                              updateStokGalon();
                               var user =
                                   PreferencesUtil.getString(Strings.kUserLogin);
                               CustomNavigation.pushAndRemoveUntil(
@@ -143,9 +179,10 @@ class _DetailRequestState extends State<DetailRequest> {
 }
 
 class DialogConfirmation extends StatelessWidget {
-  const DialogConfirmation({super.key, required this.onSaved});
+  const DialogConfirmation({super.key, required this.onSaved, required this.total});
 
   final Function() onSaved;
+  final int total;
 
   @override
   Widget build(BuildContext context) {
@@ -156,6 +193,21 @@ class DialogConfirmation extends StatelessWidget {
             text: "APAKAH ANDA YAKIN DATA SUDAH BENAR ?",
             color: AppColors.primaryColor,
             style: AppStyles.bold14),
+        const SizedBox(
+          height: 16,
+        ),
+        Row(
+          children: [
+            SizedBox(width: 100, child: CustomText(text: "Permintaan", color: AppColors.primaryColor, style: AppStyles.regular16),),
+            Expanded(child: CustomText(text: "$total", color: AppColors.primaryColor, style: AppStyles.regular16)),
+          ],
+        ),
+        Row(
+          children: [
+            SizedBox(width: 100, child: CustomText(text: "Total Bayar", color: AppColors.primaryColor, style: AppStyles.regular16),),
+            Expanded(child: CustomText(text: "Rp ${total * 7000}", color: AppColors.primaryColor, style: AppStyles.regular16)),
+          ],
+        ),
         const SizedBox(
           height: 16,
         ),

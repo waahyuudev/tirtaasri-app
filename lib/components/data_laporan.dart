@@ -1,14 +1,21 @@
-import 'package:flutter/cupertino.dart';
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:external_path/external_path.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:tirtaasri_app/components/custom_text.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:tirtaasri_app/utils/navigation.dart';
+import 'package:tirtaasri_app/utils/toast.dart';
 
 import '../theme/colors.dart';
 import '../theme/styles.dart';
 import 'custom_appbar.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
 
 class DataLaporan extends StatefulWidget {
   const DataLaporan({
@@ -17,40 +24,41 @@ class DataLaporan extends StatefulWidget {
   });
 
   final dynamic user;
+
   @override
   State<DataLaporan> createState() => _DataLaporanState();
 }
 
 class _DataLaporanState extends State<DataLaporan> {
-  DateTime selectedDate = DateTime.now(); // Tanggal default saat belum dipilih
-  DateTime selectedDate2 = DateTime.now(); // Tanggal default saat belum dipilih
+  DateTime startDate = DateTime.now();
+  DateTime endDate = DateTime.now();
 
-  Future<void> _selectDate(BuildContext context) async {
+  Future<void> _selectStartDate(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: selectedDate,
+      initialDate: DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
     );
 
-    if (pickedDate != null && pickedDate != selectedDate) {
+    if (pickedDate != null && pickedDate != startDate) {
       setState(() {
-        selectedDate = pickedDate;
+        startDate = pickedDate;
       });
     }
   }
 
-  Future<void> _selectDate2(BuildContext context) async {
-    final DateTime? pickedDate2 = await showDatePicker(
+  Future<void> _selectEndDate(BuildContext context) async {
+    final DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: selectedDate2,
+      initialDate: DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
     );
 
-    if (pickedDate2 != null && pickedDate2 != selectedDate2) {
+    if (pickedDate != null && pickedDate != endDate) {
       setState(() {
-        selectedDate2 = pickedDate2;
+        endDate = pickedDate;
       });
     }
   }
@@ -64,6 +72,91 @@ class _DataLaporanState extends State<DataLaporan> {
   void initState() {
     super.initState();
     initializeDateFormatting('id_ID', null);
+  }
+
+  Future<void> generatePDFWithTable() async {
+    final DatabaseReference ref = FirebaseDatabase.instance.ref();
+    DataSnapshot snapshot = await ref.child('transaction/').get();
+    var originalList = snapshotToList(snapshot);
+    List filteredList = originalList.where((item) {
+      DateTime createdDate = DateTime.parse(item["created_date"]);
+      return createdDate.isAtSameMomentAs(startDate) || createdDate.isAtSameMomentAs(endDate);
+    }).toList();
+
+    final pdf = pw.Document();
+
+    final headers = [
+      'Waktu Dibuat',
+      'Nama Agen',
+      'Amount',
+      "Jumlah",
+      "Nama Karyawan",
+      "Nama Karyawan",
+      "No. Telepon",
+      "Tanggal Dibuat"
+          "Alamat"
+    ];
+
+    debugPrint("list original ${jsonEncode(originalList)}");
+    debugPrint("filteredList original ${jsonEncode(filteredList)}");
+
+    List<List<dynamic>> data = [
+      headers,
+    ];
+    for (var item in filteredList) {
+      data.add(item.values.toList());
+    }
+
+    final table = pw.Table.fromTextArray(
+      headers: headers,
+      data: data.sublist(1),
+      cellAlignment: pw.Alignment.centerLeft,
+      cellStyle: const pw.TextStyle(fontSize: 10),
+      headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+      border: pw.TableBorder.all(width: 0.5),
+      headerDecoration: pw.BoxDecoration(
+        borderRadius: pw.BorderRadius.circular(2),
+        color: PdfColors.grey,
+      ),
+      headerAlignment: pw.Alignment.center,
+    );
+
+    pdf.addPage(
+      pw.Page(
+        build: (pw.Context context) {
+          return pw.Container(
+            child: table,
+          );
+        },
+      ),
+    );
+
+    var formatter = DateFormat('yyyy-MM-dd');
+    var now = DateTime.now();
+
+    var path = await ExternalPath.getExternalStoragePublicDirectory(
+        ExternalPath.DIRECTORY_DOWNLOADS);
+    String filePath = '$path/transaction-${formatter.format(now)}.pdf';
+    final file = File(filePath);
+    await file.writeAsBytes(await pdf.save());
+
+    CustomToast.show(context, "Laporan berhasil di simpan",
+        type: ToastType.success);
+  }
+
+  List<dynamic> snapshotToList(DataSnapshot snapshot) {
+    List<dynamic> list = [];
+    Map<dynamic, dynamic> values = snapshot.value as Map;
+    values.forEach((key, value) {
+      list.add(value);
+    });
+
+    return list;
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
@@ -80,173 +173,105 @@ class _DataLaporanState extends State<DataLaporan> {
         child: Container(
           color: Colors.white,
           child: Column(
-              children: [
-                SizedBox(height: 10),
-                //Container Pilih Tanggal
-                InkWell(
-                  onTap: () {
-                    _selectDate(context);
-                    _selectDate2(context);
-                  },
-                  child: Container(
-                    width: 402,
-                    height: 43,
-                    padding: const EdgeInsets.all(10.0),
-                    margin: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(1.0),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
-                          spreadRadius: 2,
-                          blurRadius: 5,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 27,
-                          height: 27,
-                          child: SvgPicture.asset("assets/svg/uiw_date.svg"),
-                        ),
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: Container(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                CustomText(
-                                  text: _formatDate(selectedDate2),
-                                  color: AppColors.primaryColor,
-                                  style: AppStyles.regular10,
-                                ),
-                                CustomText(
-                                  text: ' - ',
-                                  color: AppColors.primaryColor,
-                                  style: AppStyles.regular10,
-                                ),
-                                CustomText(
-                                  text: _formatDate(selectedDate), // Ganti dengan variabel tanggal kedua yang sesuai
-                                  color: AppColors.primaryColor,
-                                  style: AppStyles.regular10,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+            children: [
+              const SizedBox(height: 10),
+              //Container Pilih Tanggal
+              InkWell(
+                onTap: () {},
+                child: Container(
+                  width: 402,
+                  height: 43,
+                  padding: const EdgeInsets.all(10.0),
+                  margin: const EdgeInsets.symmetric(
+                      vertical: 5.0, horizontal: 10.0),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(1.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
                   ),
-                ),
-                SizedBox(height: 10),
-                //Container Button penjualan dan piutang
-                // Container(
-                //   child: Row(
-                //     children: [
-                //       InkWell(
-                //         onTap: (){},
-                //         child: Container(
-                //           width: 176,
-                //           height: 51,
-                //           padding: const EdgeInsets.all(10.0),
-                //           margin: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
-                //           decoration: BoxDecoration(
-                //             color: Colors.white,
-                //             borderRadius: BorderRadius.circular(1.0),
-                //             boxShadow: [
-                //               BoxShadow(
-                //                 color: Colors.grey.withOpacity(0.5),
-                //                 spreadRadius: 2,
-                //                 blurRadius: 5,
-                //                 offset: const Offset(0, 3),
-                //               ),
-                //             ],
-                //           ),
-                //           child: Row(
-                //             children: [
-                //               Expanded(
-                //                 child: Center(
-                //                   child: CustomText(
-                //                       text: 'Laporan Penjualan',
-                //                       color: AppColors.primaryColor,
-                //                       style: AppStyles.regular11),
-                //                 ),
-                //               ),
-                //             ],
-                //           ),
-                //         ),
-                //       ),
-                //       InkWell(
-                //         onTap: (){},
-                //         child: Container(
-                //           width: 176,
-                //           height: 51,
-                //           padding: const EdgeInsets.all(10.0),
-                //           margin: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
-                //           decoration: BoxDecoration(
-                //             color: Colors.white,
-                //             borderRadius: BorderRadius.circular(1.0),
-                //             boxShadow: [
-                //               BoxShadow(
-                //                 color: Colors.grey.withOpacity(0.5),
-                //                 spreadRadius: 2,
-                //                 blurRadius: 5,
-                //                 offset: const Offset(0, 3),
-                //               ),
-                //             ],
-                //           ),
-                //           child: Row(
-                //             children: [
-                //               Expanded(
-                //                 child: Center(
-                //                   child: CustomText(
-                //                       text: 'Laporan Piutang',
-                //                       color: AppColors.primaryColor,
-                //                       style: AppStyles.regular11),
-                //                 ),
-                //               ),
-                //             ],
-                //           ),
-                //         ),
-                //       ),
-                //     ],
-                //   ),
-                // ),
-                SizedBox(height: 10),
-                //Container Button Cetak Pdf
-                InkWell(
-                  onTap: (){},
-                  child: Container(
-                    width: 402,
-                    height: 43,
-                    padding: const EdgeInsets.all(10.0),
-                    margin: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
-                    decoration: BoxDecoration(
-                      color: AppColors.grayColor,
-                      borderRadius: BorderRadius.circular(1.0),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
-                          spreadRadius: 2,
-                          blurRadius: 5,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: Center(
-                      child: Container(
+                  child: Row(
+                    children: [
+                      SizedBox(
                         width: 27,
                         height: 27,
-                        child:  SvgPicture.asset("assets/svg/pdf.svg")
+                        child: SvgPicture.asset("assets/svg/uiw_date.svg"),
                       ),
-                    ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Container(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              GestureDetector(
+                                onTap: () => _selectStartDate(context),
+                                child: CustomText(
+                                  text: _formatDate(startDate),
+                                  color: AppColors.primaryColor,
+                                  style: AppStyles.regular10.copyWith(decoration: TextDecoration.underline),
+                                ),
+                              ),
+                              CustomText(
+                                text: ' - ',
+                                color: AppColors.primaryColor,
+                                style: AppStyles.regular10,
+                              ),
+                              GestureDetector(
+                                onTap: () => _selectEndDate(context),
+                                child: CustomText(
+                                  text: _formatDate(endDate),
+                                  color: AppColors.primaryColor,
+                                  style: AppStyles.regular10.copyWith(decoration: TextDecoration.underline),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
+              ),
+              const SizedBox(height: 10),
+              //Container Button Cetak Pdf
+              InkWell(
+                onTap: () {
+                  generatePDFWithTable();
+                },
+                child: Container(
+                  width: 402,
+                  height: 43,
+                  padding: const EdgeInsets.all(10.0),
+                  margin: const EdgeInsets.symmetric(
+                      vertical: 5.0, horizontal: 10.0),
+                  decoration: BoxDecoration(
+                    color: AppColors.grayColor,
+                    borderRadius: BorderRadius.circular(1.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: SizedBox(
+                        width: 27,
+                        height: 27,
+                        child: SvgPicture.asset("assets/svg/pdf.svg")),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),

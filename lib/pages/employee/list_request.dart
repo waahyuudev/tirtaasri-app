@@ -9,65 +9,66 @@ import 'package:tirtaasri_app/theme/colors.dart';
 import 'package:tirtaasri_app/theme/styles.dart';
 import 'package:tirtaasri_app/utils/navigation.dart';
 
-class DataRequests extends StatefulWidget {
-  const DataRequests({super.key, this.onTapItem, required this.user});
+class ListRequestPage extends StatefulWidget {
+  const ListRequestPage({super.key, this.onTapItem, required this.user});
 
   final Function()? onTapItem;
   final dynamic user;
 
   @override
-  State<DataRequests> createState() => _DataRequestsState();
+  State<ListRequestPage> createState() => _ListRequestPageState();
 }
 
-class _DataRequestsState extends State<DataRequests> {
-  List<dynamic>? _listData;
-  final DatabaseReference _ref = FirebaseDatabase.instance.ref();
+class _ListRequestPageState extends State<ListRequestPage> {
+  List<dynamic>? _listRequest;
+  List<dynamic>? _listUser;
+  List<dynamic>? _listRequestWithUser;
 
-  void getUser(int indexUser, int index) async {
-    final snpUsers = await _ref.child('users/$indexUser').get();
-    setState(() {
-      if (snpUsers.exists) {
-        Map<dynamic, dynamic>? values = snpUsers.value as Map?;
-        values?.forEach((key, item) {
-          setState(() {
-            if (key == "agentName") {
-              _listData?[index]['agent_name'] = item;
-            }
-            if (key == "address") {
-              _listData?[index]['address'] = item;
-            }
-            if (key == "phoneNumber") {
-              _listData?[index]['phone_number'] = item;
-            }
-          });
+  void getDataRequest() {
+    DatabaseReference requestRef = FirebaseDatabase.instance.ref('request/');
+    requestRef.onValue.listen((DatabaseEvent event) {
+      final data = event.snapshot;
+      var listRequest =
+          snapshotToList(data).where((e) => e['is_updated']).toList();
+      if (mounted) {
+        setState(() {
+          _listRequest = listRequest;
         });
-      } else {
-        debugPrint("transactions not found");
       }
     });
   }
 
-  @override
-  void initState() {
-    getRequest();
-    super.initState();
+  void getDataUsers() {
+    DatabaseReference usersRef = FirebaseDatabase.instance.ref('user/');
+    usersRef.onValue.listen((DatabaseEvent event) {
+      final data = event.snapshot;
+      var listUser = snapshotToList(data);
+      if (mounted) {
+        setState(() {
+          _listUser = listUser;
+          mappingData();
+        });
+      }
+    });
   }
 
-  void getRequest() async {
-    final ref = FirebaseDatabase.instance.ref();
-    DataSnapshot dataSnapshot = await ref.child("request").get();
-
-    if (dataSnapshot.value != null) {
-      _listData = snapshotToList(dataSnapshot);
-      if (_listData!.isNotEmpty) {
-        int index = 0;
-        for (var e in _listData!) {
-          getUser(e["user_id"], index);
-          index++;
-
-        }
-      }
-    }
+  void mappingData() {
+    // List<dynamic>? mappedData;
+    var mappedData = _listRequest?.map((request) {
+      var filterUserByRequest = _listUser
+          ?.where((user) => user['username'] == request['agent_name'])
+          .toList()
+          .map((item) {
+        item['request_stock'] = request['stock'];
+        return item;
+      }).toList();
+      return filterUserByRequest;
+    }).toList();
+    var flattenedList = mappedData?.expand((innerList) => innerList!).toList();
+    debugPrint("mapped data ${jsonEncode(flattenedList)}");
+    setState(() {
+      _listRequestWithUser = flattenedList;
+    });
   }
 
   List<dynamic> snapshotToList(DataSnapshot snapshot) {
@@ -81,8 +82,14 @@ class _DataRequestsState extends State<DataRequests> {
   }
 
   @override
+  void initState() {
+    getDataRequest();
+    getDataUsers();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    debugPrint("listData update ${jsonEncode(_listData)}");
     return Scaffold(
       appBar: CustomAppBar(
           onBack: () => Navigator.pop(context),
@@ -100,7 +107,7 @@ class _DataRequestsState extends State<DataRequests> {
               decoration: const BoxDecoration(color: AppColors.greyBgColor),
               margin: const EdgeInsets.symmetric(horizontal: 16),
               child: CustomText(
-                  text: "Total Request : 10 Galon",
+                  text: "Total Request : ${_listRequestWithUser?.length??0} Galon",
                   color: AppColors.primaryColor,
                   style: AppStyles.regular10),
             ),
@@ -108,12 +115,11 @@ class _DataRequestsState extends State<DataRequests> {
           const SizedBox(
             height: 12,
           ),
-          (_listData != null)
+          (_listRequestWithUser != null)
               ? Column(
-                  children: _listData!
+                  children: _listRequestWithUser!
                       .map((e) => ItemNotification(
                             user: e,
-                            isExistNotification: e['is_updated'],
                             onTap: () {
                               CustomNavigation.pushNavigate(
                                   context: context,
@@ -139,14 +145,14 @@ class _DataRequestsState extends State<DataRequests> {
 
 class ItemNotification extends StatelessWidget {
   const ItemNotification(
-      {super.key, this.isExistNotification, this.onTap, this.user});
+      {super.key, this.onTap, this.user});
 
-  final bool? isExistNotification;
   final dynamic user;
   final Function()? onTap;
 
   @override
   Widget build(BuildContext context) {
+    debugPrint("user ${jsonEncode(user)}");
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -159,32 +165,26 @@ class ItemNotification extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                (isExistNotification ?? false)
-                    ? Badge(
-                        child: CustomText(
-
-                            text: "${user?['name'] ?? ''}",
-                            color: AppColors.primaryColor,
-                            style: AppStyles.regular14),
-                      )
-                    : CustomText(
-                        text: "${user?['name'] ?? ''}",
-                        color: AppColors.primaryColor,
-                        style: AppStyles.regular14),
+                Badge(
+                  child: CustomText(
+                      text: "${user['name']}",
+                      color: AppColors.primaryColor,
+                      style: AppStyles.regular14),
+                ),
                 CustomText(
-                    text: user?['address'] ?? '',
+                    text: user['address'],
                     color: AppColors.primaryColor,
                     style: AppStyles.regular10),
               ],
             ),
             const Spacer(),
             CustomText(
-                text: user?['phoneNumber'] ?? '',
+                text: user['phoneNumber'],
                 color: AppColors.primaryColor,
                 style: AppStyles.regular14),
             const Spacer(),
             CustomText(
-                text: "${user?['stock'] ?? ''} Galon",
+                text: "${user['request_stock']} Galon",
                 color: AppColors.primaryColor,
                 style: AppStyles.regular14),
           ],

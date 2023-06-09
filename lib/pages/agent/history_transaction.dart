@@ -31,18 +31,30 @@ class _HistoryTransactionState extends State<HistoryTransaction> {
     setState(() {
       if (snapshot.exists) {
         _listTransaction = snapshotToList(snapshot);
-        var dateKeys =
-            _listTransaction.where((e) => e['agen_username'] == widget.user['username']).map((e) => e['created_date']).toSet().toList();
-        _listTransaction = dateKeys
-            .map((e) => {
-                  "created_date": e,
-                  "transactions": _listTransaction
-                      .where((k) => k['created_date'] == e && k['agen_username'] == widget.user['username'])
-                      .toList()
-                })
-            .toList();
-        debugPrint("list trx ${jsonEncode(_listTransaction)}");
-        debugPrint("list trx ${_listTransaction.length}");
+        if (widget.user['role'] == 'agent') {
+          var dateKeys =
+          _listTransaction.where((e) => e['agent_username'] == widget.user['username']).map((e) => e['created_date']).toSet().toList();
+          _listTransaction = dateKeys
+              .map((e) => {
+            "created_date": e,
+            "transactions": _listTransaction
+                .where((k) => k['created_date'] == e && k['agent_username'] == widget.user['username'])
+                .toList()
+          })
+              .toList();
+        } else {
+
+          var dateKeys =
+          _listTransaction.where((e) => e['employee_name'] == widget.user['username']).map((e) => e['created_date']).toSet().toList();
+          _listTransaction = dateKeys
+              .map((e) => {
+            "created_date": e,
+            "transactions": _listTransaction
+                .where((k) => k['created_date'] == e && k['employee_name'] == widget.user['username'])
+                .toList()
+          })
+              .toList();
+        }
       } else {
         debugPrint("transactions not found");
       }

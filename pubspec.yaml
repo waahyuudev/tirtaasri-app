@@ -48,6 +48,10 @@ dependencies:
   intl: ^0.18.1
   image_picker: ^0.8.6+1
   image_cropper: ^3.0.3
+  pdf: ^3.6.0
+  path_provider: ^2.0.15
+  external_path: ^1.0.3
+  syncfusion_flutter_datepicker: ^19.4.38
 
 dev_dependencies:
   flutter_test:
